@@ -3,6 +3,11 @@ let lastFetch = 0;
 
 export default async function handler(req, res) {
 
+  // Allow Shopify (or any origin) to access this endpoint
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   const now = Date.now();
   const fifteenMinutes = 900000;
 
@@ -12,7 +17,7 @@ export default async function handler(req, res) {
 
   const page = req.query.page || 1;
 
-  const url = `https://lgdusallc.com/developer-api/diamond?type=certified&page=${page}&key=3555e3505b955d1dcf363ad6f03a8d51ca4e4b3c3b7b`;
+  const url = `https://lgdusallc.com/developer-api/diamond?type=certified&page=${page}&key=3555e3505b955d1dcf363ad6f03a8d51ca3`;
 
   try {
 
@@ -26,7 +31,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
 
-    res.status(500).json({ error: "Failed to fetch diamonds" });
+    res.status(500).json({ error: "Failed to fetch diamonds", details: error.message });
 
   }
 
