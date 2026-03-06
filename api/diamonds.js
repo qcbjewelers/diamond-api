@@ -1,56 +1,31 @@
-<h1 style="text-align:center;">Lab Grown Diamonds</h1>
+let cache = null;
+let lastFetch = 0;
 
-<div id="diamond-grid" style="
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-gap:20px;
-max-width:1200px;
-margin:auto;
-padding:20px;
-"></div>
+export default async function handler(req, res) {
 
-<script>
+  const now = Date.now();
 
-async function loadDiamonds(){
+  if (cache && now - lastFetch < 900000) {
+    return res.status(200).json(cache);
+  }
 
-const response = await fetch("https://diamond-api-two.vercel.app/api/diamonds?page=1");
-const data = await response.json();
+  const page = req.query.page || 1;
 
-let html = "";
+  const url = `https://lgdusallc.com/developer-api/diamond?type=certified&page=${page}&key=3555e3505b955d1dcf363ad6f03a8d51ca4e4b3c3b7b`;
 
-data.Stock.slice(0,24).forEach(diamond => {
+  try {
 
-html += `
-<div style="border:1px solid #eee;padding:15px;border-radius:8px;background:white;">
-<h3>${diamond.Shape} ${diamond.Carat}ct</h3>
+    const response = await fetch(url);
+    const data = await response.json();
 
-<p><strong>Color:</strong> ${diamond.Color}</p>
-<p><strong>Clarity:</strong> ${diamond.Clarity}</p>
-<p><strong>Cut:</strong> ${diamond.Cut}</p>
+    cache = data;
+    lastFetch = now;
 
-<p style="font-size:18px;font-weight:bold;">
-$${diamond.Price}
-</p>
+    res.status(200).json(data);
 
-<button style="
-background:black;
-color:white;
-padding:10px 14px;
-border:none;
-cursor:pointer;
-">
-View Diamond
-</button>
+  } catch (error) {
 
-</div>
-`;
+    res.status(500).json({ error: "Failed to fetch diamonds" });
 
-});
-
-document.getElementById("diamond-grid").innerHTML = html;
-
+  }
 }
-
-loadDiamonds();
-
-</script>
