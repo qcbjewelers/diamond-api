@@ -1,4 +1,13 @@
+let cache = null;
+let lastFetch = 0;
+
 export default async function handler(req, res) {
+
+  const now = Date.now();
+
+  if (cache && now - lastFetch < 900000) {
+    return res.status(200).json(cache);
+  }
 
   const page = req.query.page || 1;
 
@@ -9,6 +18,9 @@ export default async function handler(req, res) {
     const response = await fetch(url);
     const data = await response.json();
 
+    cache = data;
+    lastFetch = now;
+
     res.status(200).json(data);
 
   } catch (error) {
@@ -16,5 +28,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Failed to fetch diamonds" });
 
   }
-
 }
