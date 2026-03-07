@@ -3,10 +3,7 @@ let lastFetch = 0;
 
 export default async function handler(req, res) {
 
-  // Allow Shopify (or any origin) to access this endpoint
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   const now = Date.now();
   const fifteenMinutes = 900000;
@@ -22,17 +19,23 @@ export default async function handler(req, res) {
   try {
 
     const response = await fetch(url);
-    const data = await response.json();
+    const json = await response.json();
 
-    cache = data;
+    // Convert to readable format
+    const readable = json.Stock.map(d => ({
+      Shape: d.Shape,
+      Carat: d.Carat,
+      Color: d.Color,
+      Clarity: d.Clarity,
+      Price: d.Price
+    }));
+
+    cache = readable;
     lastFetch = now;
 
-    res.status(200).json(data);
+    res.status(200).json(readable);
 
   } catch (error) {
-
-    res.status(500).json({ error: "Failed to fetch diamonds", details: error.message });
-
+    res.status(500).json({ error: "Failed to fetch diamonds" });
   }
-
 }
